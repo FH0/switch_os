@@ -33,7 +33,7 @@ custom_setting() {
 
     set_variable_if_empty url_domain "$(echo $netboot_url | awk -F '/' '{print $3}')"
     set_variable_if_empty target_os "$(echo $netboot_url | awk -F '/' '{print $4}')"
-    set_variable_if_empty root_password "halfpointer"
+    set_variable_if_empty root_password "$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8)"
     set_variable_if_empty timezone "$(cat /etc/timezone)"
     set_variable_if_empty language "${LANG:-C.UTF-8}"
     set_variable_if_empty boot_prefix "$(awk '/\/boot/{print "/boot";exit}' /boot/grub/grub.cfg)"
