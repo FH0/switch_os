@@ -6,17 +6,17 @@ set_variable_if_empty() {
     fi
 }
 
-custom_setting() {
+setting() {
     # ubuntu 20.04
     # set_variable_if_empty netboot_url "http://mirrors.163.com/ubuntu/dists/focal-updates/main/installer-amd64/current/legacy-images/netboot/ubuntu-installer/amd64"
-    # set_variable_if_empty netboot_url "http://archive.ubuntu.com/ubuntu/dists/focal-updates/main/installer-amd64/current/legacy-images/netboot/ubuntu-installer/amd64"
+    set_variable_if_empty netboot_url "http://archive.ubuntu.com/ubuntu/dists/focal-updates/main/installer-amd64/current/legacy-images/netboot/ubuntu-installer/amd64"
 
     # ubuntu 18.04
     # set_variable_if_empty netboot_url "http://mirrors.163.com/ubuntu/dists/bionic-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
     # set_variable_if_empty netboot_url "http://archive.ubuntu.com/ubuntu/dists/bionic-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
 
     # ubuntu 16.04
-    set_variable_if_empty netboot_url "http://mirrors.163.com/ubuntu/dists/xenial-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
+    # set_variable_if_empty netboot_url "http://mirrors.163.com/ubuntu/dists/xenial-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
     # set_variable_if_empty netboot_url "http://archive.ubuntu.com/ubuntu/dists/xenial-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
 
     # debian 11
@@ -167,7 +167,7 @@ modify_grub2() {
 }
 
 check_host
-custom_setting
+setting
 print_info
 insert_files_into_initrd
 download_vmlinuz
