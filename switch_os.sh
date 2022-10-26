@@ -9,7 +9,7 @@ set_variable_if_empty() {
 setting() {
     # ubuntu 20.04
     # set_variable_if_empty netboot_url "http://mirrors.163.com/ubuntu/dists/focal-updates/main/installer-amd64/current/legacy-images/netboot/ubuntu-installer/amd64"
-    set_variable_if_empty netboot_url "http://archive.ubuntu.com/ubuntu/dists/focal-updates/main/installer-amd64/current/legacy-images/netboot/ubuntu-installer/amd64"
+    # set_variable_if_empty netboot_url "http://archive.ubuntu.com/ubuntu/dists/focal-updates/main/installer-amd64/current/legacy-images/netboot/ubuntu-installer/amd64"
 
     # ubuntu 18.04
     # set_variable_if_empty netboot_url "http://mirrors.163.com/ubuntu/dists/bionic-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
@@ -20,7 +20,7 @@ setting() {
     # set_variable_if_empty netboot_url "http://archive.ubuntu.com/ubuntu/dists/xenial-updates/main/installer-amd64/current/images/netboot/ubuntu-installer/amd64"
 
     # debian 11
-    # set_variable_if_empty netboot_url "http://mirrors.163.com/debian/dists/Debian11.0/main/installer-amd64/current/images/netboot/debian-installer/amd64"
+    set_variable_if_empty netboot_url "http://repo.huaweicloud.com/debian/dists/bullseye/main/installer-amd64/current/images/netboot/debian-installer/amd64/"
     # set_variable_if_empty netboot_url "http://ftp.debian.org/debian/dists/Debian11.0/main/installer-amd64/current/images/netboot/debian-installer/amd64"
 
     # debian 10
@@ -34,9 +34,9 @@ setting() {
     set_variable_if_empty url_domain "$(echo $netboot_url | awk -F '/' '{print $3}')"
     set_variable_if_empty target_os "$(echo $netboot_url | awk -F '/' '{print $4}')"
     set_variable_if_empty root_password "$(tr -dc A-Za-z0-9 </dev/urandom | head -c 8)"
-    set_variable_if_empty timezone "$(cat /etc/timezone)"
+    set_variable_if_empty timezone "$(cat /etc/timezone || timedatectl status | grep -m1 -Eo '[a-zA-Z]+/[a-zA-Z]+' || echo Asia/Shanghai)"
     set_variable_if_empty language "${LANG:-C.UTF-8}"
-    set_variable_if_empty boot_prefix "$(awk '/\/boot/{print "/boot";exit}' /boot/grub/grub.cfg)"
+    set_variable_if_empty boot_prefix "$(awk '/\/boot/{print "/boot";exit}' /boot/grub*/grub.cfg)"
     set_variable_if_empty post_script ""
 }
 
@@ -48,16 +48,16 @@ check_host() {
     fi
 
     # dependencies
-    for cmd in wget cpio gzip sed grep; do
+    for cmd in wget cpio gzip sed grep find; do
         if ! type $cmd >/dev/null 2>&1; then
             echo "$cmd not found, please install it"
             exit 1
         fi
     done
 
-    # menuentry exist in /boot/grub/grub.cfg
-    if ! grep -q "^menuentry" /boot/grub/grub.cfg; then
-        echo "invalid /boot/grub/grub.cfg, please reinstall to another linux distro"
+    # menuentry exist in /boot/grub*/grub.cfg
+    if ! grep -q "^menuentry" /boot/grub*/grub.cfg; then
+        echo "invalid /boot/grub*/grub.cfg, please reinstall to another linux distro"
         exit 1
     fi
 }
@@ -158,16 +158,16 @@ download_vmlinuz() {
 }
 
 modify_grub2() {
-    cd /boot/grub
-    sed -i '0,/^menuentry/s||menuentry "netboot" {\
+    sed -i '0,/^menuentry/s||set default="0"\
+menuentry "netboot" {\
     linux   '$boot_prefix'/vmlinuz-netboot auto=true hostname='$target_os' domain= interface=auto\
     initrd  '$boot_prefix'/initrd-netboot.img\
 }\
-&|' grub.cfg
+&|' /boot/grub*/grub.cfg
 }
 
-check_host
 setting
+check_host
 print_info
 insert_files_into_initrd
 download_vmlinuz
